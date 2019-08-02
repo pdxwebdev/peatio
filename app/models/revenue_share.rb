@@ -41,7 +41,7 @@ class RevenueShare < ApplicationRecord
   PERCENT_DENOMINATOR = 100
   PER_TEN_THOUSAND_DENOMINATOR = 10_000
 
-  STATES = %w[active disabled]
+  STATES = %w[active disabled].freeze
 
   # == Attributes ===========================================================
 
@@ -85,6 +85,7 @@ class RevenueShare < ApplicationRecord
   # == Scopes ===============================================================
 
   scope :active, -> { where(state: :active) }
+  scope :ordered, -> { order(id: :asc) }
 
   # == Callbacks ============================================================
 
@@ -100,6 +101,7 @@ class RevenueShare < ApplicationRecord
 
   # We are trying to follow ActiveModel::Type::Decimal casting behaviour for
   # percent.
+  # TODO: Validate, that percent is not too precise.
   def percent=(p)
     if p.is_a?(Numeric) || p.is_a?(String)
       self.pptt = (p.to_d * PER_TEN_THOUSAND_DENOMINATOR / PERCENT_DENOMINATOR).to_i
@@ -114,6 +116,14 @@ class RevenueShare < ApplicationRecord
     else
       nil
     end
+  end
+
+  def member_uid
+    member&.uid
+  end
+
+  def parent_uid
+    parent&.uid
   end
 end
 
