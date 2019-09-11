@@ -28,16 +28,14 @@ module Yada
     end
 
     def create_transaction!(transaction, options = {})
-      txid = client.json_rpc(:sendtoaddress,
-                             [
-                               transaction.to_address,
-                               transaction.amount,
-                               '',
-                               '',
-                               options[:subtract_fee].to_s == 'true' # subtract fee from transaction amount.
-                             ])
-      transaction.hash = txid
-      transaction
+      client.rest_call_post(
+        '/sign-transaction',
+        {
+          to: transaction.to_address,
+          value: transaction.amount,
+          from: @wallet.fetch(:address)
+        }
+      )
     rescue Yada::Client::Error => e
       raise Peatio::Wallet::ClientError, e
     end
@@ -45,7 +43,7 @@ module Yada
     def load_balance!
       addresses = client.rest_call_get('/get-addresses')['addresses']
       client.rest_call_post(
-        '/explorer-get-balance-sum',
+        '/get-balance-sum',
         addresses: addresses).to_d
 
     rescue Yada::Client::Error => e

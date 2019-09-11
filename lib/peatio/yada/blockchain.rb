@@ -55,10 +55,14 @@ module Yada
         end
         .each_with_object([]) do |entry, formatted_txs|
           no_currency_tx =
-            { hash: tx_hash['txid'], txout: entry['n'],
-              to_address: entry['outputs']['addresses'][0],
+            { 
+              hash: tx_hash['hash'], 
+              txout: 0,
+              to_address: entry['to'],
               amount: entry.fetch('value').to_d,
-              status: 'success' }
+              status: 'success',
+              block_number: 0
+            }
 
             # Build transaction for each currency belonging to blockchain.
             settings_fetch(:currencies).pluck(:id).each do |currency_id|
