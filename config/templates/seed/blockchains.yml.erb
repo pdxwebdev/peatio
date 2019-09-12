@@ -88,4 +88,16 @@
     address:         https://bithomp.com/explorer/#{address}
     transaction:     https://bithomp.com/explorer/#{txid}
   status:            active
+
+- key:               yada
+  name:              YadaCoin Mainet
+  client:            yada               # API client name.
+  server:            http://10.233.178.204:8002       # Public Ethereum node endpoint. IMPORTANT: full syncmode.
+  height:            62000                # Initial block number from which sync will be started.
+  min_confirmations: 6                      # Minimal confirmations needed for withdraw and deposit confirmation.
+  explorer:
+    address:         https://yadacoin.io/explorer?term=#{address}
+    transaction:     https://yadacoin.io/explorer?term=#{txid}
+  status:            active
+ifo
 <% end %>

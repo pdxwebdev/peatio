@@ -327,4 +327,18 @@
     # Geth gateway client settings.
     uri:          http://user:password@127.0.0.1:5005
     secret:       'changeme'
+
+- name:             YadaCoin Deposit Wallet
+  blockchain_key:   yada
+  currency_id:      yada
+  # Address where deposits will be collected to.
+  address:          '13EbNJefRc95nkLFkJvJDycXkowW4sWqSe'  # IMPORTANT: Always wrap this value in quotes!
+  kind:             deposit    # Wallet kind (deposit, hot, warm, cold or fee).
+  max_balance:      1000.0
+  status:           active
+  gateway:          yada    # Gateway client name.
+  settings:
+    #
+    # Geth gateway client settings.
+    uri:          http://10.233.178.204:8002
 <% end %>
