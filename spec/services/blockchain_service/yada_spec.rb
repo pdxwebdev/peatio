@@ -20,7 +20,7 @@ describe BlockchainService::Yada do
       let(:latest_block)  { block_data.last['result']['height'] }
   
       let(:blockchain) do
-        Blockchain.find_by_key('btc-testnet')
+        Blockchain.find_by_key('yada')
           .tap { |b| b.update(height: start_block) }
       end
   
@@ -59,10 +59,10 @@ describe BlockchainService::Yada do
           ]
         end
   
-        let(:currency) { Currency.find_by_id(:btc) }
+        let(:currency) { Currency.find_by_id(:yada) }
   
         let!(:payment_address) do
-          create(:btc_payment_address, address: '2MvCSzoFbQsVCTjN2rKWPuHa3THXSp1mHWt')
+          create(:yada_payment_address, address: '2MvCSzoFbQsVCTjN2rKWPuHa3THXSp1mHWt')
         end
   
         before do
@@ -133,11 +133,11 @@ describe BlockchainService::Yada do
         let(:currency) { Currency.find_by_id(:btc) }
   
         let!(:first_payment_address) do
-          create(:btc_payment_address, address: '2N53Qy2KPYc6FBboYpuQmYroiSu8S6xthug')
+          create(:yada_payment_address, address: '2N53Qy2KPYc6FBboYpuQmYroiSu8S6xthug')
         end
   
         let!(:second_payment_address) do
-          create(:btc_payment_address, address: '2N9ufFR59zrxPETBaxEH51PcxAeJ2TyASVm')
+          create(:yada_payment_address, address: '2N9ufFR59zrxPETBaxEH51PcxAeJ2TyASVm')
         end
   
         before do

@@ -37,5 +37,5 @@ module WalletService
         client.load_balance!(address, currency)
       end
     end
-  end
+end
   
