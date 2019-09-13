@@ -13,10 +13,16 @@ module BlockchainClient
       @json_rpc_endpoint
     end
 
-    def load_balance!(address, currency)
-      json_rpc(:listunspent, [1, 10_000_000, [address]])
-        .fetch('result')
-        .sum { |vout| vout['amount'] }
+    def load_balance!(address, _currency_id)
+      address_with_balance = rest_call_get('/explorer-get-balance?address=' + address)
+
+      if address_with_balance.blank?
+        raise Peatio::Blockchain::UnavailableAddressBalanceError, address
+      end
+
+      address_with_balance[1].to_d
+    rescue Yada::Client::Error => e
+      raise Peatio::Blockchain::ClientError, e
     end
 
     def load_deposit!(txid)
@@ -35,9 +41,9 @@ module BlockchainClient
     end
 
     def latest_block_number
-      Rails.cache.fetch "latest_#{self.class.name.underscore}_block_number", expires_in: 5.seconds do
-        json_rpc(:getblockcount).fetch('result')
-      end
+      rest_call_get('/get-height')
+    rescue Yada::Client::Error => e
+      raise Peatio::Blockchain::ClientError, e
     end
 
     def get_block(block_hash)
@@ -89,16 +95,35 @@ module BlockchainClient
     end
     memoize :connection
 
-    def json_rpc(method, params = [])
-      response = connection.post \
-        '/',
-        { jsonrpc: '1.0', method: method, params: params }.to_json,
-        { 'Accept'       => 'application/json',
-          'Content-Type' => 'application/json' }
+    def rest_call_get(url)
+      response = connection.get \
+        url,
+        {'Accept' => 'application/json',
+         'Content-Type' => 'application/json'}
       response.assert_success!
       response = JSON.parse(response.body)
-      response['error'].tap { |error| raise Error, error.inspect if error }
+      response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
       response
+    rescue Faraday::Error => e
+      raise ConnectionError, e
+    rescue StandardError => e
+      raise Error, e
+    end
+
+    def rest_call_post(url, params = [])
+      response = connection.post \
+        url,
+        params.to_json,
+        {'Accept' => 'application/json',
+         'Content-Type' => 'application/json'}
+      response.assert_success!
+      response = JSON.parse(response.body)
+      response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
+      response
+    rescue Faraday::Error => e
+      raise ConnectionError, e
+    rescue StandardError => e
+      raise Error, e
     end
   end
 end
