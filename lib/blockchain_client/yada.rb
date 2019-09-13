@@ -41,13 +41,13 @@ module BlockchainClient
     end
 
     def latest_block_number
-      rest_call_get('/get-height')
+      rest_call_get('/get-height')['height']
     rescue Yada::Client::Error => e
       raise Peatio::Blockchain::ClientError, e
     end
 
-    def get_block(block_hash)
-      json_rpc(:getblock, [block_hash, 2]).fetch('result')
+    def get_block_by_index(block_index)
+      rest_call_get('/get-block?index=' + block_index.to_s)
     end
 
     def get_block_hash(height)
@@ -56,22 +56,21 @@ module BlockchainClient
     end
 
     def to_address(tx)
-      tx.fetch('vout').map{|v| normalize_address(v['scriptPubKey']['addresses'][0]) if v['scriptPubKey'].has_key?('addresses')}.compact
+      tx.fetch('outputs').map{|v| normalize_address(v['to'])}.compact
     end
 
     def build_transaction(tx, current_block, address)
-      entries = tx.fetch('vout').map do |item|
+      entries = tx.fetch('outputs').map do |item|
 
         next if item.fetch('value').to_d <= 0
-        next unless item['scriptPubKey'].has_key?('addresses')
-        next if address != normalize_address(item['scriptPubKey']['addresses'][0])
+        next if address != normalize_address(item['to'])
 
         { amount:   item.fetch('value').to_d,
-          address:  normalize_address(item['scriptPubKey']['addresses'][0]),
-          txout:    item.fetch('n') }
+          address:  normalize_address(item['to']),
+          txout:    item['n'] }
       end.compact
 
-      { id:            normalize_txid(tx.fetch('txid')),
+      { id:            normalize_txid(tx.fetch('id')),
         block_number:  current_block,
         entries:       entries }
     end

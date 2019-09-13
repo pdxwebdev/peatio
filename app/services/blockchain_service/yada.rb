@@ -4,9 +4,8 @@
 module BlockchainService
   class Yada < Base
     # Rough number of blocks per hour for Yadacoin is 6.
-    def process_blockchain(blocks_limit: 6, force: false)
+    def process_blockchain(blocks_limit: 100, force: false)
       latest_block = client.latest_block_number
-
       # Don't start process if we didn't receive new blocks.
       if blockchain.height + blockchain.min_confirmations >= latest_block && !force
         Rails.logger.info { "Skip synchronization. No new blocks detected height: #{blockchain.height}, latest_block: #{latest_block}" }
@@ -20,16 +19,13 @@ module BlockchainService
       (from_block..to_block).each do |block_id|
         Rails.logger.info { "Started processing #{blockchain.key} block number #{block_id}." }
 
-        block_hash = client.get_block_hash(block_id)
-        next if block_hash.blank?
-
-        block_json = client.get_block(block_hash)
-        next if block_json.blank? || block_json['tx'].blank?
+        block_json = client.get_block_by_index(block_id)
+        next if block_json.blank? || block_json['transactions'].blank?
 
         block_data = { id: block_id }
         block_data[:deposits]    = build_deposits(block_json, block_id)
         block_data[:withdrawals] = build_withdrawals(block_json, block_id)
-
+	Rails.logger.debug block_data
         save_block(block_data, latest_block)
 
         Rails.logger.info { "Finished processing #{blockchain.key} block number #{block_id}." }
@@ -43,14 +39,14 @@ module BlockchainService
 
     def build_deposits(block_json, block_id)
       block_json
-        .fetch('tx')
+        .fetch('transactions')
         .each_with_object([]) do |tx, deposits|
-
+	Rails.logger.debug client.to_address(tx) 
         payment_addresses_where(address: client.to_address(tx)) do |payment_address|
           # If payment address currency doesn't match with blockchain
-
+          Rails.logger.debug "got in!!!"
           deposit_txs = client.build_transaction(tx, block_id, payment_address.address)
-
+	  Rails.logger.debug deposit_txs
           deposit_txs.fetch(:entries).each do |entry|
             if entry[:amount] <= payment_address.currency.min_deposit_amount
               # Currently we just skip small deposits. Custom behavior will be implemented later.
@@ -73,12 +69,12 @@ module BlockchainService
 
     def build_withdrawals(block_json, block_id)
       block_json
-        .fetch('tx')
+        .fetch('transactions')
         .each_with_object([]) do |tx, withdrawals|
 
         Withdraws::Coin
           .where(currency: currencies)
-          .where(txid: client.normalize_txid(tx.fetch('txid')))
+          .where(txid: client.normalize_txid(tx.fetch('id')))
           .each do |withdraw|
           # If wallet currency doesn't match with blockchain transaction
 
