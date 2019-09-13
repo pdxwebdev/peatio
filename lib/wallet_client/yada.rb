@@ -17,10 +17,12 @@ module WalletClient
     def create_withdrawal!(issuer, recipient, amount, options = {})
       options.merge!(subtract_fee: false) unless options.has_key?(:subtract_fee)
 
-      json_rpc(:settxfee, [options[:fee]]) if options.key?(:fee)
-      json_rpc(:sendtoaddress, [normalize_address(recipient.fetch(:address)), amount, '', '', options[:subtract_fee]])
-          .fetch('result')
-          .yield_self(&method(:normalize_txid))
+      #json_rpc(:settxfee, [options[:fee]]) if options.key?(:fee)
+      rest_call_post('/send-transaction', {
+          'from': normalize_address(issuer.fetch(:address)), 
+          'address': normalize_address(recipient.fetch(:address)), 
+          'value': amount
+      })['id']
     end
 
     def inspect_address!(address)
@@ -30,7 +32,7 @@ module WalletClient
     end
 
     def load_balance!(_address, _currency)
-      json_rpc(:getbalance).fetch('result').to_d
+      rest_call_get('/explorer-get-balance?address=' + _address)['balance'].to_d
     end
 
     protected

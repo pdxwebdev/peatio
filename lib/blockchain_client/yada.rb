@@ -34,10 +34,12 @@ module BlockchainClient
     end
 
     def create_withdrawal!(issuer, recipient, amount, options = {})
-      json_rpc(:settxfee, [options[:fee]]) if options.key?(:fee)
-      json_rpc(:sendtoaddress, [normalize_address(recipient.fetch(:address)), amount])
-        .fetch('result')
-        .yield_self(&method(:normalize_txid))
+      #json_rpc(:settxfee, [options[:fee]]) if options.key?(:fee)
+      rest_call_post('/send-transaction', {
+        'from': normalize_address(issuer.fetch(:address)), 
+        'address': normalize_address(recipient.fetch(:address)), 
+        'value': amount
+      })['id']
     end
 
     def latest_block_number
