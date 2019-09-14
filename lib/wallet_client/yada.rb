@@ -10,7 +10,7 @@ module WalletClient
     end
 
     def create_address!(options = {})
-        result = rest_call_post('/generate-child-wallet', _options)
+        result = rest_call_post('/generate-child-wallet', options)
         {address: result['address']} 
     end
 

@@ -30,7 +30,8 @@ module BlockchainClient
     end
 
     def create_address!(options = {})
-      { address: normalize_address(json_rpc(:getnewaddress).fetch('result')) }
+      result = rest_call_post('/generate-child-wallet', options)
+      {address: result['address']} 
     end
 
     def create_withdrawal!(issuer, recipient, amount, options = {})
