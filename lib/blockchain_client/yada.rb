@@ -18,7 +18,8 @@ module BlockchainClient
     end
 
     def load_deposit!(txid)
-      json_rpc(:gettransaction, [normalize_txid(txid)]).fetch('result').yield_self { |tx| build_standalone_deposit(tx) }
+      tx = rest_call_get('/get-transaction?id=' + normalize_txid(txid))
+      build_standalone_deposit(tx)
     end
 
     def create_address!(options = {})
@@ -45,7 +46,7 @@ module BlockchainClient
 
     def get_block_hash(height)
       current_block   = height || 0
-      json_rpc(:getblockhash, [current_block]).fetch('result')
+      rest_call_get('/get-block?index=' + current_block.to_s)['hash']
     end
 
     def to_address(tx)
@@ -69,11 +70,11 @@ module BlockchainClient
     end
 
     def get_unconfirmed_txns
-      json_rpc(:getrawmempool).fetch('result').map(&method(:get_raw_transaction))
+      tx = rest_call_get('/get-pending-transaction-ids')['txn_ids'].map(&method(:get_raw_transaction)))
     end
 
     def get_raw_transaction(txid)
-      json_rpc(:getrawtransaction, [txid, true]).fetch('result')
+      rest_call_get('/get-pending-transaction?id=' + txid)
     end
 
   protected
