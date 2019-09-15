@@ -21,8 +21,6 @@ module BlockchainClient
       end
 
       address_with_balance[1].to_d
-    rescue Yada::Client::Error => e
-      raise Peatio::Blockchain::ClientError, e
     end
 
     def load_deposit!(txid)
@@ -45,8 +43,6 @@ module BlockchainClient
 
     def latest_block_number
       rest_call_get('/get-height')['height']
-    rescue Yada::Client::Error => e
-      raise Peatio::Blockchain::ClientError, e
     end
 
     def get_block_by_index(block_index)
