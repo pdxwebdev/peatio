@@ -53,10 +53,6 @@ module WalletClient
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
       response
-    rescue Faraday::Error => e
-      raise ConnectionError, e
-    rescue StandardError => e
-      raise Error, e
     end
 
     def rest_call_post(url, params = [])
@@ -69,10 +65,6 @@ module WalletClient
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
       response
-    rescue Faraday::Error => e
-      raise ConnectionError, e
-    rescue StandardError => e
-      raise Error, e
     end
   end
 end

@@ -14,13 +14,7 @@ module BlockchainClient
     end
 
     def load_balance!(address, _currency_id)
-      address_with_balance = rest_call_get('/explorer-get-balance?address=' + address)
-
-      if address_with_balance.blank?
-        raise Peatio::Blockchain::UnavailableAddressBalanceError, address
-      end
-
-      address_with_balance[1].to_d
+      rest_call_get('/explorer-get-balance?address=' + address)['balance'].to_d
     end
 
     def load_deposit!(txid)
@@ -102,10 +96,6 @@ module BlockchainClient
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
       response
-    rescue Faraday::Error => e
-      raise ConnectionError, e
-    rescue StandardError => e
-      raise Error, e
     end
 
     def rest_call_post(url, params = [])
@@ -118,10 +108,6 @@ module BlockchainClient
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
       response
-    rescue Faraday::Error => e
-      raise ConnectionError, e
-    rescue StandardError => e
-      raise Error, e
     end
   end
 end
