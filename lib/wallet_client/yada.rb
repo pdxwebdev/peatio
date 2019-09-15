@@ -26,9 +26,7 @@ module WalletClient
     end
 
     def inspect_address!(address)
-      json_rpc(:validateaddress, [normalize_address(address)]).fetch('result').yield_self do |x|
-        { address: normalize_address(address), is_valid: !!x['isvalid'] }
-      end
+      { address: normalize_address(address), is_valid: true }
     end
 
     def load_balance!(_address, _currency)

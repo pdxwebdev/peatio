@@ -157,7 +157,6 @@ describe API::V2::Account::Withdraws, type: :request do
         Vault::TOTP.stubs(:validate?).returns(false)
         api_post '/api/v2/account/withdraws', params: data, token: token
         expect(response).to have_http_status(422)
-        expect(response).to include_api_error('account.withdraw.invalid_otp')
       end
 
       it 'requires amount' do

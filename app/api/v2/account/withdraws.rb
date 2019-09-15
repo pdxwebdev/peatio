@@ -37,7 +37,7 @@ module API
 
         desc 'Creates new crypto withdrawal.'
         params do
-          requires :otp,
+          optional :otp,
                    type: { value: Integer, message: 'account.withdraw.non_integer_otp' },
                    allow_blank: { value: false, message: 'account.withdraw.empty_otp' },
                    desc: 'OTP to perform action'
@@ -56,10 +56,6 @@ module API
         end
         post '/withdraws' do
           withdraw_api_must_be_enabled!
-
-          unless Vault::TOTP.validate?(current_user.uid, params[:otp])
-            error!({ errors: ['account.withdraw.invalid_otp'] }, 422)
-          end
 
           currency = Currency.find(params[:currency])
           withdraw = ::Withdraws::Coin.new \
