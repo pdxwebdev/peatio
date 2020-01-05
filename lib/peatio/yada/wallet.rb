@@ -29,14 +29,17 @@ module Yada
     end
 
     def create_transaction!(transaction, options = {})
-      Rails.logger.warn { @wallet }
-      client.unlock(@wallet.fetch(:secret))
+      wallet = @settings.fetch(:wallet) do
+        raise Peatio::Wallet::MissingSettingError, :wallet
+      end.slice(:uri, :address, :secret)
+      Rails.logger.warn { wallet }
+      client.unlock(wallet.fetch(:secret))
       client.rest_call_post(
         '/sign-transaction',
         {
           to: transaction.to_address,
           value: transaction.amount,
-          from: @wallet.fetch(:address)
+          from: wallet.fetch(:address)
         }
       )
     rescue Yada::Client::Error => e
