@@ -18,10 +18,10 @@ module Yada
       @token = ''
     end
 
-    def unlock(options = {})
+    def unlock(options = {}, secret = '')
       response = connection.post \
         '/unlock',
-        {'key_or_wif': options.fetch(:secret)}.to_json,
+        {'key_or_wif': secret}.to_json,
         {'Accept' => 'application/json',
          'Content-Type' => 'application/json'}
       response.assert_success!
