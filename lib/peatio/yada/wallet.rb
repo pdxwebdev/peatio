@@ -21,7 +21,7 @@ module Yada
     end
 
     def create_address!(_options = {})
-      client.unlock(_options, @wallet.fetch(:secret))
+      client.unlock(@wallet.fetch(:secret))
       result = client.rest_call_post('/generate-child-wallet', _options)
       {address: result['address']} 
     rescue Yada::Client::Error => e
@@ -29,7 +29,8 @@ module Yada
     end
 
     def create_transaction!(transaction, options = {})
-      client.unlock(options, @wallet.fetch(:secret))
+      Rails.logger.warn { @wallet }
+      client.unlock(@wallet.fetch(:secret))
       client.rest_call_post(
         '/sign-transaction',
         {

@@ -18,7 +18,7 @@ module Yada
       @token = ''
     end
 
-    def unlock(options = {}, secret = '')
+    def unlock(secret = '')
       response = connection.post \
         '/unlock',
         {'key_or_wif': secret}.to_json,
