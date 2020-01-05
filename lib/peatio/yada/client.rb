@@ -19,8 +19,8 @@ module Yada
     end
 
     def unlock(options = {})
-      response = connection.get \
-        url,
+      response = connection.post \
+        '/unlock',
         {'key_or_wif': options.fetch(:secret)}.to_json,
         {'Accept' => 'application/json',
          'Content-Type' => 'application/json'}
