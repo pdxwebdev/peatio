@@ -13,7 +13,7 @@ module Yada
 
       @wallet = @settings.fetch(:wallet) do
         raise Peatio::Wallet::MissingSettingError, :wallet
-      end.slice(:uri, :address)
+      end.slice(:uri, :address, :secret)
 
       @currency = @settings.fetch(:currency) do
         raise Peatio::Wallet::MissingSettingError, :currency
