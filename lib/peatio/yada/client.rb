@@ -51,13 +51,12 @@ module Yada
     private
 
     def connection
-      @connection ||= Faraday.new(@json_rpc_endpoint) do |f|
-        f.adapter :net_http_persistent, pool_size: 5, idle_timeout: @idle_timeout
-      end.tap do |connection|
+      Faraday.new(@json_rpc_endpoint).tap do |connection|
         unless @json_rpc_endpoint.user.blank?
           connection.basic_auth(@json_rpc_endpoint.user, @json_rpc_endpoint.password)
         end
       end
     end
+    memoize :connection
   end
 end
