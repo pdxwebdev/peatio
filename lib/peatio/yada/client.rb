@@ -15,13 +15,32 @@ module Yada
     def initialize(endpoint, idle_timeout: 5)
       @json_rpc_endpoint = URI.parse(endpoint)
       @idle_timeout = idle_timeout
+      @token = ''
     end
 
-    def rest_call_get(url)
+    def unlock(options = {})
+      response = connection.get \
+        url,
+        {'key_or_wif': options.fetch(:secret)}.to_json,
+        {'Accept' => 'application/json',
+         'Content-Type' => 'application/json'}
+      response.assert_success!
+      response = JSON.parse(response.body)
+      @token = response.fetch(:token)
+      response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
+      response
+    rescue Faraday::Error => e
+      raise ConnectionError, e
+    rescue StandardError => e
+      raise Error, e
+    end
+
+    def rest_call_get(url, options)
       response = connection.get \
         url,
         {'Accept' => 'application/json',
-         'Content-Type' => 'application/json'}
+         'Content-Type' => 'application/json',
+         'Authorization' => 'Bearer ' + @token}
       response.assert_success!
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
@@ -32,12 +51,13 @@ module Yada
       raise Error, e
     end
 
-    def rest_call_post(url, params = [])
+    def rest_call_post(url, params = {})
       response = connection.post \
         url,
         params.to_json,
         {'Accept' => 'application/json',
-         'Content-Type' => 'application/json'}
+         'Content-Type' => 'application/json',
+         'Authorization' => 'Bearer ' + @token}
       response.assert_success!
       response = JSON.parse(response.body)
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }
