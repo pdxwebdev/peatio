@@ -35,7 +35,7 @@ module Yada
     end
 
     def load_balance_of_address!(address, _currency_id)
-      address_with_balance = client.rest_call_get('/explorer-get-balance?address=' + address)
+      address_with_balance = client.rest_call_get('/explorer-search?term=' + address)['balance']
 
       if address_with_balance.blank?
         raise Peatio::Blockchain::UnavailableAddressBalanceError, address
