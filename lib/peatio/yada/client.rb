@@ -25,7 +25,6 @@ module Yada
         {'Accept' => 'application/json',
          'Content-Type' => 'application/json'}
       response.assert_success!
-      Rails.logger.warn { response.body }
       result = JSON.parse(response.body)
       @token = result['token']
       response['error'].tap { |error| raise ResponseError.new(error['code'], error['message']) if error }

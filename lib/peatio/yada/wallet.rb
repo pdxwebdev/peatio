@@ -29,7 +29,7 @@ module Yada
     end
 
     def create_transaction!(transaction, options = {})
-      client.unlock(_options, @wallet.fetch(:secret))
+      client.unlock(options, @wallet.fetch(:secret))
       client.rest_call_post(
         '/sign-transaction',
         {
