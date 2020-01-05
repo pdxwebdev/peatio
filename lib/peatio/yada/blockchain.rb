@@ -17,7 +17,7 @@ module Yada
 
     def fetch_block!(block_number)
 
-      client.rest_call_get('/get-block?index=' + block_number)
+      client.rest_call_get('/get-block?index=' + block_number.to_s)
         .fetch('transactions').each_with_object([]) do |tx, txs_array|
           txs = build_transaction(tx).map do |ntx|
             Peatio::Transaction.new(ntx.merge(block_number: block_number))
