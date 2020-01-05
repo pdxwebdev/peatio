@@ -35,7 +35,7 @@ module Yada
       raise Error, e
     end
 
-    def rest_call_get(url, options)
+    def rest_call_get(url)
       response = connection.get \
         url,
         {'Accept' => 'application/json',
