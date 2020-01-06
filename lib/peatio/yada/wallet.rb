@@ -35,7 +35,7 @@ module Yada
       Rails.logger.warn { wallet }
       client.unlock(wallet.fetch(:secret))
       client.rest_call_post(
-        '/create-transaction',
+        '/send-transaction',
         {
           address: transaction.to_address,
           value: transaction.amount,
