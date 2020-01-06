@@ -30,6 +30,9 @@ module Yada
 
     def create_transaction!(transaction, options = {})
       Rails.logger.info { @wallet }
+      @wallet = @wallet.to_wallet_api_settings
+      .merg(uri: @wallet.fetch(:uri), address: @wallet.fetch(:address))
+      .compact
       client.unlock(@wallet.fetch(:secret))
       txn = client.rest_call_post(
         '/send-transaction',
